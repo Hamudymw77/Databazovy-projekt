@@ -1,4 +1,3 @@
-import sqlite3
 import tkinter as tk
 from tkinter import ttk, messagebox
 from database.database_connection import DatabaseConnection
@@ -56,7 +55,7 @@ class EmployeeProjectView:
                                    (self.selected_employee_id, self.selected_project_id))
                     conn.commit()
                     messagebox.showinfo("Úspěch", "Zaměstnanec byl přiřazen k projektu")
-                except sqlite3.IntegrityError:
+                except Exception:
                     messagebox.showerror("Chyba", "Tato vazba již existuje")
                 finally:
                     conn.close()
@@ -93,4 +92,5 @@ class EmployeeProjectView:
             cursor.execute("SELECT project_id, name FROM Projects")
             for project in cursor.fetchall():
                 self.project_listbox.insert(tk.END, f"{project[0]}: {project[1]}")
+
             conn.close()
