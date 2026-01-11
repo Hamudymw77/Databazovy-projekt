@@ -1,4 +1,4 @@
-import sqlite3
+
 import tkinter as tk
 from tkinter import ttk, messagebox
 from database.database_connection import DatabaseConnection
@@ -56,7 +56,7 @@ class DocumentDepartmentView:
                                (self.selected_document_id, self.selected_department_id))
                 conn.commit()
                 messagebox.showinfo("Úspěch", "Dokument byl přiřazen k oddělení")
-            except sqlite3.IntegrityError:
+            except Exception:
                 messagebox.showerror("Chyba", "Tato vazba již existuje")
             finally:
                 conn.close()
@@ -91,4 +91,5 @@ class DocumentDepartmentView:
         cursor.execute("SELECT department_id, name FROM Departments")
         for department in cursor.fetchall():
             self.department_listbox.insert(tk.END, f"{department[0]}: {department[1]}")
+
         conn.close()
