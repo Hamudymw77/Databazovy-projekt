@@ -1,7 +1,7 @@
 DROP VIEW IF EXISTS View_Employee_Details;
 DROP VIEW IF EXISTS View_Active_Projects;
 DROP TABLE IF EXISTS Project_Assignments;
-DROP TABLE IF EXISTS DocumentDepartments; -- Nová tabulka
+DROP TABLE IF EXISTS DocumentDepartments; 
 DROP TABLE IF EXISTS Documents;
 DROP TABLE IF EXISTS Employees;
 DROP TABLE IF EXISTS Projects;
@@ -37,12 +37,11 @@ CREATE TABLE Documents (
     document_id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     content TEXT,
-    creation_date DATETIME DEFAULT CURRENT_TIMESTAMP, -- Přidáno pro Gateway
-    department_id INT, -- Ponecháno pro zpětnou kompatibilitu, ale vazba M:N je lepší
+    creation_date DATETIME DEFAULT CURRENT_TIMESTAMP, 
+    department_id INT, 
     FOREIGN KEY (department_id) REFERENCES Departments(department_id)
 ) ENGINE=InnoDB;
 
--- Vazební tabulka M:N pro Projekty
 CREATE TABLE Project_Assignments (
     assignment_id INT AUTO_INCREMENT PRIMARY KEY,
     project_id INT,
@@ -53,7 +52,6 @@ CREATE TABLE Project_Assignments (
     FOREIGN KEY (employee_id) REFERENCES Employees(employee_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Vazební tabulka M:N pro Dokumenty (Oprava chyby v Gateway)
 CREATE TABLE DocumentDepartments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     document_id INT,
@@ -73,3 +71,4 @@ FROM Projects p
 LEFT JOIN Project_Assignments pa ON p.project_id = pa.project_id
 WHERE p.status = 'running'
 GROUP BY p.project_id;
+
