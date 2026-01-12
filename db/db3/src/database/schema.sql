@@ -1,7 +1,7 @@
-
 DROP VIEW IF EXISTS View_Employee_Details;
 DROP VIEW IF EXISTS View_Active_Projects;
 DROP TABLE IF EXISTS Project_Assignments;
+DROP TABLE IF EXISTS DocumentDepartments; -- Nová tabulka
 DROP TABLE IF EXISTS Documents;
 DROP TABLE IF EXISTS Employees;
 DROP TABLE IF EXISTS Projects;
@@ -37,10 +37,12 @@ CREATE TABLE Documents (
     document_id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     content TEXT,
-    department_id INT,
+    creation_date DATETIME DEFAULT CURRENT_TIMESTAMP, -- Přidáno pro Gateway
+    department_id INT, -- Ponecháno pro zpětnou kompatibilitu, ale vazba M:N je lepší
     FOREIGN KEY (department_id) REFERENCES Departments(department_id)
 ) ENGINE=InnoDB;
 
+-- Vazební tabulka M:N pro Projekty
 CREATE TABLE Project_Assignments (
     assignment_id INT AUTO_INCREMENT PRIMARY KEY,
     project_id INT,
@@ -49,6 +51,15 @@ CREATE TABLE Project_Assignments (
     assigned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (project_id) REFERENCES Projects(project_id) ON DELETE CASCADE,
     FOREIGN KEY (employee_id) REFERENCES Employees(employee_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Vazební tabulka M:N pro Dokumenty (Oprava chyby v Gateway)
+CREATE TABLE DocumentDepartments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    document_id INT,
+    department_id INT,
+    FOREIGN KEY (document_id) REFERENCES Documents(document_id) ON DELETE CASCADE,
+    FOREIGN KEY (department_id) REFERENCES Departments(department_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE VIEW View_Employee_Details AS
