@@ -2,6 +2,12 @@ import mysql.connector
 from mysql.connector import Error
 import csv
 import os
+import configparser
+
+config = configparser.ConfigParser()
+base_dir = os.path.dirname(os.path.abspath(__file__))
+config_path = os.path.join(base_dir, '..', 'settings', 'config.ini')
+config.read(config_path)
 
 db_config = {
     'host': 'localhost',
@@ -10,10 +16,20 @@ db_config = {
     'database': 'employee_management_db'
 }
 
+if 'Database' in config:
+    db_config['host'] = config['Database'].get('host', 'localhost')
+    db_config['user'] = config['Database'].get('user', 'root')
+    db_config['password'] = config['Database'].get('password', '')
+    db_config['database'] = config['Database'].get('database', 'employee_management_db')
+else:
+    print(f"VAROVÁNÍ: Sekce [Database] v {config_path} nenalezena. Používám výchozí nastavení.")
+
+# -------------------------------------------------------
+
 def create_tables_and_import():
     conn = None
     try:
-        print("--- ZAČÍNÁM PŘÍPRAVU DATABÁZE ---")
+        print(f"--- ZAČÍNÁM PŘÍPRAVU DATABÁZE ({db_config['host']}) ---")
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
 
@@ -22,6 +38,7 @@ def create_tables_and_import():
         cursor.execute("DROP VIEW IF EXISTS View_Active_Projects")
         
         cursor.execute("DROP TABLE IF EXISTS Project_Assignments")
+        cursor.execute("DROP TABLE IF EXISTS DocumentDepartments") 
         cursor.execute("DROP TABLE IF EXISTS Documents")
         cursor.execute("DROP TABLE IF EXISTS Employees")
         cursor.execute("DROP TABLE IF EXISTS Projects")
@@ -66,12 +83,12 @@ def create_tables_and_import():
             document_id INT AUTO_INCREMENT PRIMARY KEY,
             title VARCHAR(255) NOT NULL,
             content TEXT,
+            creation_date DATETIME DEFAULT CURRENT_TIMESTAMP,
             department_id INT,
             FOREIGN KEY (department_id) REFERENCES Departments(department_id)
         ) ENGINE=InnoDB;
         """)
 
-        # Vazebni tabulka M:N
         cursor.execute("""
         CREATE TABLE Project_Assignments (
             assignment_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -81,6 +98,16 @@ def create_tables_and_import():
             assigned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (project_id) REFERENCES Projects(project_id) ON DELETE CASCADE,
             FOREIGN KEY (employee_id) REFERENCES Employees(employee_id) ON DELETE CASCADE
+        ) ENGINE=InnoDB;
+        """)
+
+        cursor.execute("""
+        CREATE TABLE DocumentDepartments (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            document_id INT,
+            department_id INT,
+            FOREIGN KEY (document_id) REFERENCES Documents(document_id) ON DELETE CASCADE,
+            FOREIGN KEY (department_id) REFERENCES Departments(department_id) ON DELETE CASCADE
         ) ENGINE=InnoDB;
         """)
 
@@ -105,9 +132,7 @@ def create_tables_and_import():
         conn.commit()
         print("Struktura databáze vytvořena.")
 
-        # Import dat z CSV
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        csv_path = os.path.join(base_dir, 'data.csv')
+        csv_path = os.path.join(base_dir, '..', 'data.csv')
 
         if os.path.exists(csv_path):
             print(f"Načítám data z: {csv_path}")
@@ -129,12 +154,13 @@ def create_tables_and_import():
                 conn.commit()
                 print("Data importována.")
         else:
-            print("VAROVÁNÍ: data.csv nenalezen, vkládám testovací data.")
-            cursor.execute("INSERT INTO Departments (name, budget, establishment_date) VALUES ('IT', 100000.0, '2020-01-01')")
+            print(f"VAROVÁNÍ: soubor {csv_path} nenalezen, vkládám pouze prázdné tabulky.")
+            cursor.execute("INSERT INTO Departments (name, budget, establishment_date) VALUES ('IT Test', 100000.0, '2020-01-01')")
             conn.commit()
 
     except Error as err:
         print(f"CHYBA MySQL: {err}")
+        print("Tip: Zkontroluj settings/config.ini a zda běží XAMPP.")
     finally:
         if conn and conn.is_connected():
             cursor.close()
