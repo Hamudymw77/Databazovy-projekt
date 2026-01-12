@@ -24,8 +24,6 @@ if 'Database' in config:
 else:
     print(f"VAROVÁNÍ: Sekce [Database] v {config_path} nenalezena. Používám výchozí nastavení.")
 
-# -------------------------------------------------------
-
 def create_tables_and_import():
     conn = None
     try:
@@ -38,7 +36,7 @@ def create_tables_and_import():
         cursor.execute("DROP VIEW IF EXISTS View_Active_Projects")
         
         cursor.execute("DROP TABLE IF EXISTS Project_Assignments")
-        cursor.execute("DROP TABLE IF EXISTS DocumentDepartments") 
+        cursor.execute("DROP TABLE IF EXISTS DocumentDepartments")
         cursor.execute("DROP TABLE IF EXISTS Documents")
         cursor.execute("DROP TABLE IF EXISTS Employees")
         cursor.execute("DROP TABLE IF EXISTS Projects")
