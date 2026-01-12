@@ -7,7 +7,6 @@ class DepartmentView:
     def __init__(self, parent):
         self.parent = parent
         self.db = DatabaseConnection()
-        # Inicializace Gateway pro oddělení
         self.gateway = DepartmentGateway(self.db)
         
         self.frame = ttk.Frame(self.parent)
@@ -29,7 +28,6 @@ class DepartmentView:
         self.department_tree.grid(row=1, column=0, columnspan=3)
         self.department_tree.bind('<ButtonRelease-1>', self.on_tree_select)
 
-        # Vstupní prvky
         tk.Label(self.frame, text="Název oddělení:").grid(row=2, column=0, sticky="e")
         self.name_entry = tk.Entry(self.frame)
         self.name_entry.grid(row=2, column=1, sticky="w")
@@ -42,7 +40,6 @@ class DepartmentView:
         self.establishment_date_entry = tk.Entry(self.frame)
         self.establishment_date_entry.grid(row=4, column=1, sticky="w")
 
-        # Tlačítka
         self.add_btn = tk.Button(self.frame, text="Přidat oddělení", command=self.insert_department)
         self.add_btn.grid(row=5, column=0, pady=10)
 
@@ -59,7 +56,6 @@ class DepartmentView:
             self.department_tree.delete(i)
         
         try:
-            # Volání Gateway
             rows = self.gateway.fetch_all()
             for row in rows:
                 self.department_tree.insert("", "end", values=row)
@@ -73,7 +69,6 @@ class DepartmentView:
 
         if name and budget and establishment_date:
             try:
-                # Volání Gateway
                 self.gateway.insert(name, float(budget), establishment_date)
                 
                 self.refresh_departments()
@@ -93,7 +88,6 @@ class DepartmentView:
             establishment_date = self.establishment_date_entry.get()
             
             try:
-                # Volání Gateway
                 self.gateway.update(self.selected_department_id, name, float(budget), establishment_date)
                 
                 self.refresh_departments()
@@ -109,7 +103,6 @@ class DepartmentView:
     def delete_department(self):
         if self.selected_department_id:
             try:
-                # Volání Gateway
                 self.gateway.delete(self.selected_department_id)
                 
                 self.refresh_departments()
@@ -137,4 +130,5 @@ class DepartmentView:
         self.name_entry.delete(0, tk.END)
         self.budget_entry.delete(0, tk.END)
         self.establishment_date_entry.delete(0, tk.END)
+
         self.selected_department_id = None
