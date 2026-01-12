@@ -7,7 +7,6 @@ class DepartmentGateway:
     def fetch_all(self):
         conn = self.db.connect()
         cursor = conn.cursor()
-        # V MySQL používáme %s místo ?
         cursor.execute("SELECT department_id, name, budget, establishment_date FROM Departments")
         rows = cursor.fetchall()
         conn.close()
