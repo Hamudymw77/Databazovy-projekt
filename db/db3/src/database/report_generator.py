@@ -5,11 +5,10 @@ import os
 
 class ReportGenerator:
     def __init__(self, db_path=None, reports_dir='reports'):
-        # db_path už nepotřebujeme pro MySQL connection class, ale necháme v initu pro kompatibilitu
         self.reports_dir = reports_dir
 
     def generate_report(self):
-        db = DatabaseConnection() # Bere config ze souboru
+        db = DatabaseConnection() 
         conn = db.connect()
         
         if not conn:
@@ -18,8 +17,7 @@ class ReportGenerator:
 
         cursor = conn.cursor()
 
-        # SQL Dotaz přes 3 tabulky (Employees, Departments, Projects) + Vazební tabulka
-        # Splňuje zadání: "Agregovaná data z alespoň tří tabulek"
+     
         query = """
             SELECT 
                 e.name AS Employee, 
@@ -37,7 +35,6 @@ class ReportGenerator:
         cursor.execute(query)
         data = cursor.fetchall()
         
-        # Získání názvů sloupců
         column_names = [i[0] for i in cursor.description]
 
         cursor.close()
@@ -55,7 +52,7 @@ class ReportGenerator:
             writer.writerow(["COMPLEX REPORT"])
             writer.writerow(["Generated at:", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
             writer.writerow([]) 
-            writer.writerow(column_names)  # Automatické hlavičky z DB
+            writer.writerow(column_names)  
 
             for row in data:
                 writer.writerow(row)
@@ -64,4 +61,5 @@ class ReportGenerator:
             writer.writerow(["End of Report"])
 
         print(f"Report vygenerován: {filepath}")
+
         return filepath
