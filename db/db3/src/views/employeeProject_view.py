@@ -6,7 +6,7 @@ from mysql.connector import Error
 class EmployeeProjectView:
     def __init__(self, parent):
         self.parent = parent
-        self.db = DatabaseConnection()
+        self.db = DatabaseConnection() 
         self.frame = ttk.Frame(self.parent)
         self.frame.pack(padx=10, pady=10)
         self.selected_employee_id = None
@@ -14,7 +14,6 @@ class EmployeeProjectView:
         self.create_widgets()
 
     def create_widgets(self):
-        # Layout
         self.employee_label = ttk.Label(self.frame, text="Zaměstnanci:")
         self.employee_label.grid(row=0, column=0, pady=(10, 5))
         self.employee_listbox = tk.Listbox(self.frame, exportselection=False)
